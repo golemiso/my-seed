@@ -1,8 +1,10 @@
-@(playerForm: Form[PlayerData])(implicit request: MessagesRequestHeader)
+@(playerForm: Form[PlayerData], players: Seq[domain.Player])(implicit request: MessagesRequestHeader)
 
 <h1>player form</h1>
 
 @request.flash.get("success").getOrElse("")
+
+@players
 
 @helper.form(action = routes.PlayerController.playerPost()) {
   @helper.CSRF.formField
