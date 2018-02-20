@@ -6,7 +6,7 @@
 
 @players
 
-@helper.form(action = routes.PlayerController.playerPost()) {
+@helper.form(action = routes.PlayerController.post()) {
   @helper.CSRF.formField
   @helper.inputText(playerForm("name"))
   @helper.inputText(playerForm("age"))
