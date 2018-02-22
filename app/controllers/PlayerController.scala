@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import domain.{Player, PlayerID}
+import domain.{Player, PlayerID, PlayerRepository}
 import infra.MongoPlayerRepository
 import play.api.mvc._
 import play.api.data._
@@ -12,16 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class PlayerData(name: String, age: Int)
 
-// NOTE: Add the following to conf/routes to enable compilation of this class:
-/*
-GET     /player        controllers.PlayerController.playerGet
-POST    /player        controllers.PlayerController.playerPost
-*/
-
-/**
- * Player form controller for Play Scala
- */
-class PlayerController @Inject()(implicit ec: ExecutionContext, mcc: MessagesControllerComponents, repository: MongoPlayerRepository) extends MessagesAbstractController(mcc) {
+class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepository)(implicit ec: ExecutionContext) extends MessagesAbstractController(mcc) {
 
   val playerForm = Form(
     mapping(
@@ -50,7 +41,7 @@ class PlayerController @Inject()(implicit ec: ExecutionContext, mcc: MessagesCon
       playerData => {
         /* binding success, you get the actual value. */       
         /* flashing uses a short lived cookie */
-        repository.addPlayer(Player(id = PlayerID(), name = playerData.name)).map { _ =>
+        repository.add(Player(id = PlayerID(), name = playerData.name)).map { _ =>
           Redirect(routes.PlayerController.getAll()).flashing("success" -> ("Successful " + playerData.toString))
         }
       }
