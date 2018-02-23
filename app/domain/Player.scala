@@ -11,7 +11,6 @@ object PlayerID {
   def apply(): PlayerID = PlayerID("")
 }
 
-
 trait PlayerRepository {
   def getAll: Future[Seq[Player]]
   def get(id: PlayerID): Future[Option[Player]]

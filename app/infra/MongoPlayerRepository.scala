@@ -1,12 +1,12 @@
 package infra
 
-import domain.{Player, PlayerID, PlayerRepository}
+import domain.{ Player, PlayerID, PlayerRepository }
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api._
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 case class PlayerDocument(_id: BSONObjectID, name: String)
 object PlayerDocument {

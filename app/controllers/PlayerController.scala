@@ -2,13 +2,13 @@ package controllers
 
 import javax.inject._
 
-import domain.{Player, PlayerID, PlayerRepository}
+import domain.{ Player, PlayerID, PlayerRepository }
 import infra.MongoPlayerRepository
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 case class PlayerData(name: String, age: Int)
 
@@ -17,10 +17,7 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
   val playerForm = Form(
     mapping(
       "name" -> text,
-      "age" -> number
-    )(PlayerData.apply)(PlayerData.unapply)
-  )
-
+      "age" -> number)(PlayerData.apply)(PlayerData.unapply))
 
   def get(id: String) = TODO
   def put(id: String) = TODO
@@ -39,12 +36,11 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
         Future.successful(BadRequest(views.html.player.form(formWithErrors, Nil)))
       },
       playerData => {
-        /* binding success, you get the actual value. */       
+        /* binding success, you get the actual value. */
         /* flashing uses a short lived cookie */
         repository.add(Player(id = PlayerID(), name = playerData.name)).map { _ =>
           Redirect(routes.PlayerController.getAll()).flashing("success" -> ("Successful " + playerData.toString))
         }
-      }
-    )
+      })
   }
 }

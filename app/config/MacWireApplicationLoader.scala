@@ -1,8 +1,8 @@
 package config
 
 import com.softwaremill.macwire._
-import com.typesafe.config.{Config, ConfigFactory}
-import controllers.{AssetsComponents, HomeController, PlayerController}
+import com.typesafe.config.{ Config, ConfigFactory }
+import controllers.{ AssetsComponents, HomeController, PlayerController }
 import domain.PlayerRepository
 import infra.MongoPlayerRepository
 import play.api.ApplicationLoader.Context
@@ -10,12 +10,11 @@ import play.api.http.FileMimeTypes
 import play.api.i18n._
 import play.api.mvc._
 import play.api.routing.Router
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
-import play.modules.reactivemongo.{DefaultReactiveMongoApi, ReactiveMongoApi, ReactiveMongoApiComponents}
-import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
+import play.api.{ Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator }
+import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import router.Routes
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class MacWireApplicationLoader extends ApplicationLoader {
   def load(context: Context): Application = new MacWireComponents(context).application
@@ -47,15 +46,14 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
   }
 }
 
-case class MacWireMessagesControllerComponents (
-                                                           messagesActionBuilder: MessagesActionBuilder,
-                                                           actionBuilder: DefaultActionBuilder,
-                                                           parsers: PlayBodyParsers,
-                                                           messagesApi: MessagesApi,
-                                                           langs: Langs,
-                                                           fileMimeTypes: FileMimeTypes,
-                                                           executionContext: scala.concurrent.ExecutionContext
-                                                         ) extends MessagesControllerComponents
+case class MacWireMessagesControllerComponents(
+  messagesActionBuilder: MessagesActionBuilder,
+  actionBuilder: DefaultActionBuilder,
+  parsers: PlayBodyParsers,
+  messagesApi: MessagesApi,
+  langs: Langs,
+  fileMimeTypes: FileMimeTypes,
+  executionContext: scala.concurrent.ExecutionContext) extends MessagesControllerComponents
 
 class MacWireMessagesActionBuilder(parser: BodyParser[AnyContent], messagesApi: MessagesApi)(implicit ec: ExecutionContext)
   extends MessagesActionBuilderImpl(parser, messagesApi) with MessagesActionBuilder {
