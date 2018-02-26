@@ -2,7 +2,7 @@ package config
 
 import org.scalatestplus.play.FakeApplicationFactory
 import play.api.inject.DefaultApplicationLifecycle
-import play.api.{Application, ApplicationLoader, Configuration, Environment}
+import play.api.{ Application, ApplicationLoader, Configuration, Environment }
 import play.core.DefaultWebCommands
 
 trait MacWireApplicationFactory extends FakeApplicationFactory {
@@ -15,8 +15,7 @@ trait MacWireApplicationFactory extends FakeApplicationFactory {
         sourceMapper = None,
         webCommands = new DefaultWebCommands(),
         initialConfiguration = Configuration.load(env),
-        lifecycle = new DefaultApplicationLifecycle()
-      )
+        lifecycle = new DefaultApplicationLifecycle())
       val loader = new MacWireApplicationLoader()
       loader.load(context)
     }

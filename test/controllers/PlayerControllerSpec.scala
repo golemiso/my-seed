@@ -1,12 +1,11 @@
 package controllers
 
-import org.scalatestplus.play.{BaseOneAppPerSuite, BaseOneAppPerTest, PlaySpec}
-import org.scalatest.{AsyncFunSpec, FunSpec}
+import org.scalatestplus.play.BaseOneAppPerTest
+import org.scalatest.FunSpec
 import play.api.test.FakeRequest
 import config.MacWireApplicationFactory
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import play.api.test._
 
 class PlayerControllerSpec extends FunSpec with BaseOneAppPerTest with MacWireApplicationFactory {
   describe("PlayerController") {
