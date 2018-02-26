@@ -19,3 +19,5 @@ libraryDependencies ++= Seq(
 
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "com.golemiso.binders._"
+
+javaOptions in Test += "-Dconfig.file=test/resources/test.conf"
