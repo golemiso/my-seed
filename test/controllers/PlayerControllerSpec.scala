@@ -9,9 +9,18 @@ import play.api.test._
 
 class PlayerControllerSpec extends FunSpec with BaseOneAppPerTest with MacWireApplicationFactory {
   describe("PlayerController") {
-    describe("findBy RoleId") {
-      it("returns role") {
-        route(app, FakeRequest(GET, "/boum")).exists(r => status(r) == NOT_FOUND)
+    describe("put") {
+      it("200") {
+        val Some(result) = route(app, FakeRequest(GET, "/players"))
+        status(result) === OK
+      }
+    }
+  }
+  describe("PlayerController") {
+    describe("getAll") {
+      it("200") {
+        val Some(result) = route(app, FakeRequest(GET, "/players"))
+        status(result) === OK
       }
     }
   }

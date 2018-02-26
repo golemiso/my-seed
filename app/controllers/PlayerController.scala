@@ -1,12 +1,10 @@
 package controllers
 
-import javax.inject._
-
 import domain.{ Player, PlayerID, PlayerRepository }
-import infra.MongoPlayerRepository
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.json.{ Json, OFormat }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -25,22 +23,18 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 
   def getAll() = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.getAll.map { players =>
-      Ok(views.html.player.form(playerForm, players))
+      Ok(Json.toJson(PlayerResource.toResource(players)))
     }
   }
 
   def post() = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    playerForm.bindFromRequest.fold(
-      formWithErrors => {
-        // binding failure, you retrieve the form containing errors:
-        Future.successful(BadRequest(views.html.player.form(formWithErrors, Nil)))
-      },
-      playerData => {
-        /* binding success, you get the actual value. */
-        /* flashing uses a short lived cookie */
-        repository.add(Player(id = PlayerID(), name = playerData.name)).map { _ =>
-          Redirect(routes.PlayerController.getAll()).flashing("success" -> ("Successful " + playerData.toString))
-        }
-      })
+    repository.add
   }
+}
+
+case class PlayerResource(id: String, name: String)
+object PlayerResource {
+  implicit val format: OFormat[PlayerResource] = Json.format[PlayerResource]
+  def toResource(entity: Player): PlayerResource = PlayerResource(entity.id.value, entity.name)
+  def toResource(entity: Seq[Player]): Seq[PlayerResource] = entity.map(toResource)
 }
