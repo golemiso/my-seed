@@ -1,14 +1,22 @@
+import java.util.UUID
+
 package object domain {
   trait Identity {
-    val value: String
+    val value: UUID
   }
-  trait Entity[A <: Identity] {
-    val id: A
+
+  trait Entity[I <: Identity] {
+    type ID = I
+    val id: I
     override final def equals(obj: Any): Boolean = obj match {
-      case other: Entity[A] => other.canEqual(this) && this.id == other.id
+      case other: Entity[I] => other.canEqual(this) && this.id == other.id
       case _ => false
     }
     override final def hashCode: Int = id.hashCode
-    def canEqual(other: Any) = other.getClass == this.getClass
+    def canEqual(other: Any): Boolean = other.getClass == this.getClass
+  }
+
+  trait Repository[E <: Entity[_]] {
+    def resolve(id: E#ID): E
   }
 }

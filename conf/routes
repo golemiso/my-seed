@@ -11,6 +11,6 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 GET     /players/:id                controllers.PlayerController.get(id: String)
 GET     /players                    controllers.PlayerController.getAll
-POST    /players                    controllers.PlayerController.post
+POST    /players                    controllers.PlayerController.post()
 PUT     /players/:id                controllers.PlayerController.put(id: String)
 DELETE  /players/:id                controllers.PlayerController.delete(id: String)

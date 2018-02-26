@@ -4,7 +4,7 @@ import com.softwaremill.macwire._
 import com.typesafe.config.{ Config, ConfigFactory }
 import controllers.{ AssetsComponents, HomeController, PlayerController }
 import domain.PlayerRepository
-import infra.MongoPlayerRepository
+import infra.mongodb.MongoPlayerRepository
 import play.api.ApplicationLoader.Context
 import play.api.http.FileMimeTypes
 import play.api.i18n._

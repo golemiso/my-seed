@@ -1,8 +1,10 @@
 package domain
 
+import java.util.UUID
+
 case class Record(id: RecordID, victory: Team, defeat: Team, mode: Mode) extends Entity[RecordID]
 
-case class RecordID(value: String) extends Identity
+case class RecordID(value: UUID) extends Identity
 
 sealed abstract class Mode(val value: String)
 case object TurfWar extends Mode("ナワバリバトル")

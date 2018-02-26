@@ -1,18 +1,19 @@
 package domain
 
-import reactivemongo.api.commands.WriteResult
+import java.util.UUID
 
 import scala.concurrent.Future
 
 case class Player(id: PlayerID, name: String) extends Entity[PlayerID]
 
-case class PlayerID(value: String) extends Identity
+case class PlayerID(value: UUID) extends Identity
 object PlayerID {
-  def apply(): PlayerID = PlayerID("")
+  def apply(valueString: Option[String]): PlayerID =
+    PlayerID(valueString.map(s => UUID.fromString(s)).getOrElse(UUID.randomUUID))
 }
 
 trait PlayerRepository {
   def getAll: Future[Seq[Player]]
-  def get(id: PlayerID): Future[Option[Player]]
-  def add(player: Player): Future[WriteResult]
+  def get(id: PlayerID): Future[Player]
+  def add(player: Player): Future[Unit]
 }
