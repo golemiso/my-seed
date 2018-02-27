@@ -9,12 +9,12 @@ import reactivemongo.bson._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-case class PlayerDocument(id: UUID, name: String)
+case class PlayerDocument(_id: UUID, name: String)
 object PlayerDocument {
   implicit val handler: BSONDocumentHandler[PlayerDocument] = Macros.handler[PlayerDocument]
 }
 
-class MongoPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext) extends PlayerRepository {
+class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext) extends PlayerRepository {
 
   def playersCollection: Future[BSONCollection] = db.map(_.collection("players"))
 
@@ -25,22 +25,27 @@ class MongoPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext
   }
 
   override def get(id: PlayerID): Future[Player] = {
-    val query = BSONDocument("id" -> id.value)
+    val query = BSONDocument("_id" -> id.value)
     playersCollection.flatMap(_.find(query).one[PlayerDocument]).map(_.map(toEntity).get)
   }
 
-  override def add(player: Player): Future[Unit] = {
-    playersCollection.map(_.insert(toDocument(player)))
+  override def add(player: Player): Future[Player] = {
+    playersCollection.flatMap(_.insert(toDocument(player)).map(_ => player))
   }
 
-  def delete(id: BSONObjectID): Future[Option[PlayerDocument]] = {
-    val selector = BSONDocument("id" -> id)
-    playersCollection.flatMap(_.findAndRemove(selector).map(_.result[PlayerDocument]))
+  override def update(player: Player): Future[Player] = {
+    val query = BSONDocument("_id" -> player.id.value)
+    playersCollection.flatMap(_.update(query, toDocument(player)).map(_ => player))
   }
 
-  def toEntity(document: PlayerDocument): Player =
-    Player(PlayerID(document.id), document.name)
+  override def delete(id: PlayerID): Future[Unit] = {
+    val selector = BSONDocument("_id" -> id.value)
+    playersCollection.map(_.findAndRemove(selector))
+  }
 
-  def toDocument(entity: Player): PlayerDocument =
+  private def toEntity(document: PlayerDocument): Player =
+    Player(PlayerID(document._id), document.name)
+
+  private def toDocument(entity: Player): PlayerDocument =
     PlayerDocument(entity.id.value, entity.name)
 }

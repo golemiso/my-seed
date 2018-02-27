@@ -11,16 +11,23 @@ class PlayerControllerSpec extends FunSpec with BaseOneAppPerTest with MacWireAp
   describe("PlayerController") {
     describe("post") {
       describe("id unspecified") {
-        it("200") {
+        it("201") {
           val Some(result) = route(app, FakeRequest(POST, "/players").withBody(Json.toJson(PlayerResource(None, "Test User"))))
           assert(status(result) === CREATED)
         }
       }
       describe("id specified") {
-        it("200") {
+        it("201") {
           val Some(result) = route(app, FakeRequest(POST, "/players").withBody(Json.toJson(PlayerResource(Some("00000000-0000-0000-0000-000000000000"), "Test User"))))
           assert(status(result) === CREATED)
         }
+      }
+    }
+
+    describe("put") {
+      it("202") {
+        val Some(result) = route(app, FakeRequest(PUT, "/players/00000000-0000-0000-0000-000000000000").withBody(Json.toJson(PlayerResource(None, "Updated User"))))
+        assert(status(result) === ACCEPTED)
       }
     }
 
@@ -38,7 +45,7 @@ class PlayerControllerSpec extends FunSpec with BaseOneAppPerTest with MacWireAp
         val Some(result) = route(app, FakeRequest(GET, "/players/00000000-0000-0000-0000-000000000000"))
         assert(status(result) === OK)
         val Some(player) = Json.fromJson[PlayerResource](contentAsJson(result)).asOpt
-        assert(player.name === "Test User")
+        assert(player.name === "Updated User")
       }
     }
   }

@@ -15,5 +15,7 @@ object PlayerID {
 trait PlayerRepository {
   def getAll: Future[Seq[Player]]
   def get(id: PlayerID): Future[Player]
-  def add(player: Player): Future[Unit]
+  def add(player: Player): Future[Player]
+  def update(player: Player): Future[Player]
+  def delete(id: PlayerID): Future[Unit]
 }

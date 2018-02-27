@@ -4,7 +4,7 @@ import com.softwaremill.macwire._
 import com.typesafe.config.{ Config, ConfigFactory }
 import controllers.{ AssetsComponents, HomeController, PlayerController }
 import domain.PlayerRepository
-import infra.mongodb.MongoPlayerRepository
+import infra.mongodb.MongoDBPlayerRepository
 import play.api.ApplicationLoader.Context
 import play.api.http.FileMimeTypes
 import play.api.i18n._
@@ -34,7 +34,7 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
   lazy val messagesActionBuilder: MessagesActionBuilder = wire[MacWireMessagesActionBuilder]
   lazy val messagesControllerComponents: MessagesControllerComponents = wire[MacWireMessagesControllerComponents]
 
-  lazy val playerRepository: PlayerRepository = wire[MongoPlayerRepository]
+  lazy val playerRepository: PlayerRepository = wire[MongoDBPlayerRepository]
 
   lazy val homeController: HomeController = wire[HomeController]
   lazy val playerController: PlayerController = wire[PlayerController]

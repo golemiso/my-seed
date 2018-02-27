@@ -23,8 +23,11 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
     }
   }
 
-  def put(id: String) = TODO
-  def delete(id: String) = TODO
+  def delete(id: String): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    repository.getAll.map { players =>
+      Ok(Json.toJson(PlayerResource.create(players)))
+    }
+  }
 
   def getAll: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.getAll.map { players =>
@@ -34,8 +37,15 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 
   def post(): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.add(Player(PlayerID(playerResource.id), playerResource.name)).map { _ =>
-      Created
+    repository.add(Player(PlayerID(None), playerResource.name)).map { player =>
+      Created(Json.toJson(PlayerResource.create(player)))
+    }
+  }
+
+  def put(id: String): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
+    val playerResource = request.body
+    repository.update(Player(PlayerID(Some(id)), playerResource.name)).map { player =>
+      Accepted(Json.toJson(PlayerResource.create(player)))
     }
   }
 }
