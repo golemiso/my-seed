@@ -1,5 +1,7 @@
 import java.util.UUID
 
+import scala.concurrent.Future
+
 package object domain {
   trait Identity {
     val value: UUID
@@ -17,6 +19,6 @@ package object domain {
   }
 
   trait Repository[E <: Entity[_]] {
-    def resolve(id: E#ID): E
+    def resolve(id: E#ID): Future[E]
   }
 }
