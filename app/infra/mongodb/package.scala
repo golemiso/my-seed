@@ -3,7 +3,7 @@ package infra
 import java.io.{ ByteArrayOutputStream, DataOutputStream }
 import java.util.UUID
 
-import domain.Identity
+import domain.IdObject
 import reactivemongo.bson.{ BSONBinary, BSONReader, BSONWriter, Subtype }
 
 package object mongodb {

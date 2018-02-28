@@ -20,25 +20,20 @@ class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
 
   import reactivemongo.bson._
 
-  override def getAll: Future[Seq[Player]] = {
+  override def resolve: Future[Seq[Player]] = {
     playersCollection.flatMap(_.find(BSONDocument()).cursor[PlayerDocument]().collect[Seq](1000, Cursor.FailOnError[Seq[PlayerDocument]]())).map(_.map(toEntity))
   }
 
-  override def get(id: PlayerID): Future[Player] = {
+  override def resolveBy(id: PlayerID): Future[Player] = {
     val query = BSONDocument("_id" -> id.value)
     playersCollection.flatMap(_.find(query).one[PlayerDocument]).map(_.map(toEntity).get)
   }
 
-  override def add(player: Player): Future[Player] = {
+  override def store(player: Player): Future[Player] = {
     playersCollection.flatMap(_.insert(toDocument(player)).map(_ => player))
   }
 
-  override def update(player: Player): Future[Player] = {
-    val query = BSONDocument("_id" -> player.id.value)
-    playersCollection.flatMap(_.update(query, toDocument(player)).map(_ => player))
-  }
-
-  override def delete(id: PlayerID): Future[Unit] = {
+  override def deleteBy(id: PlayerID): Future[Unit] = {
     val selector = BSONDocument("_id" -> id.value)
     playersCollection.map(_.findAndRemove(selector))
   }

@@ -4,7 +4,7 @@ import java.util.UUID
 
 case class Record(id: RecordID, victory: Team, defeat: Team, mode: Mode) extends Entity[RecordID]
 
-case class RecordID(value: UUID) extends Identity
+case class RecordID(value: UUID) extends IdObject
 
 sealed abstract class Mode(val value: String)
 case object TurfWar extends Mode("ナワバリバトル")

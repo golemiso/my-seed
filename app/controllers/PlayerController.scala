@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.UUID
+
 import domain.{ Player, PlayerID, PlayerRepository }
 import play.api.mvc._
 import play.api.data._
@@ -17,34 +19,34 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
       "name" -> text,
       "age" -> number)(PlayerData.apply)(PlayerData.unapply))
 
-  def get(id: String): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    repository.get(PlayerID(Some(id))).map { player =>
+  def get(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    repository.resolveBy(PlayerID(id)).map { player =>
       Ok(Json.toJson(PlayerResource.create(player)))
     }
   }
 
-  def delete(id: String): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    repository.getAll.map { players =>
-      Ok(Json.toJson(PlayerResource.create(players)))
+  def delete(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    repository.deleteBy(PlayerID(id)).map { _ =>
+      NoContent
     }
   }
 
   def getAll: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    repository.getAll.map { players =>
+    repository.resolve.map { players =>
       Ok(Json.toJson(PlayerResource.create(players)))
     }
   }
 
   def post(): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.add(Player(PlayerID(None), playerResource.name)).map { player =>
+    repository.store(Player(PlayerID.`new`, playerResource.name)).map { player =>
       Created(Json.toJson(PlayerResource.create(player)))
     }
   }
 
-  def put(id: String): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
+  def put(id: UUID): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.update(Player(PlayerID(Some(id)), playerResource.name)).map { player =>
+    repository.store(Player(PlayerID(id), playerResource.name)).map { player =>
       Accepted(Json.toJson(PlayerResource.create(player)))
     }
   }
