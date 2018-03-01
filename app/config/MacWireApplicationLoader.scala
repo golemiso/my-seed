@@ -2,9 +2,9 @@ package config
 
 import com.softwaremill.macwire._
 import com.typesafe.config.{ Config, ConfigFactory }
-import controllers.{ AssetsComponents, HomeController, PlayerController }
-import domain.PlayerRepository
-import infra.mongodb.MongoDBPlayerRepository
+import controllers.{ AssetsComponents, PlayerController, TeamController }
+import domain.{ PlayerRepository, TeamRepository }
+import infra.mongodb.{ MongoDBPlayerRepository, MongoDBTeamRepository }
 import play.api.ApplicationLoader.Context
 import play.api.http.FileMimeTypes
 import play.api.i18n._
@@ -34,10 +34,11 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
   lazy val messagesActionBuilder: MessagesActionBuilder = wire[MacWireMessagesActionBuilder]
   lazy val messagesControllerComponents: MessagesControllerComponents = wire[MacWireMessagesControllerComponents]
 
+  lazy val playerController: PlayerController = wire[PlayerController]
   lazy val playerRepository: PlayerRepository = wire[MongoDBPlayerRepository]
 
-  lazy val homeController: HomeController = wire[HomeController]
-  lazy val playerController: PlayerController = wire[PlayerController]
+  lazy val teamController: TeamController = wire[TeamController]
+  lazy val teamRepository: TeamRepository = wire[MongoDBTeamRepository]
 
   lazy val router: Router = {
     // add the prefix string in local scope for the Routes constructor

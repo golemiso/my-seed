@@ -4,20 +4,11 @@ import java.util.UUID
 
 import domain.{ Player, PlayerID, PlayerRepository }
 import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
-import play.api.libs.json.{ JsValue, Json, OFormat }
+import play.api.libs.json.{ Json, OFormat }
 
-import scala.concurrent.{ ExecutionContext, Future }
-
-case class PlayerData(name: String, age: Int)
+import scala.concurrent.ExecutionContext
 
 class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepository)(implicit ec: ExecutionContext) extends MessagesAbstractController(mcc) {
-
-  val playerForm = Form(
-    mapping(
-      "name" -> text,
-      "age" -> number)(PlayerData.apply)(PlayerData.unapply))
 
   def get(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.resolveBy(PlayerID(id)).map { player =>
@@ -39,7 +30,7 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 
   def post(): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.store(Player(PlayerID.`new`, playerResource.name)).map { player =>
+    repository.store(Player(PlayerID.generate, playerResource.name)).map { player =>
       Created(Json.toJson(PlayerResource.create(player)))
     }
   }
@@ -52,9 +43,9 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
   }
 }
 
-case class PlayerResource(id: Option[String], name: String)
+case class PlayerResource(id: Option[UUID], name: String)
 object PlayerResource {
   implicit val format: OFormat[PlayerResource] = Json.format[PlayerResource]
-  def create(player: Player): PlayerResource = PlayerResource(Some(player.id.value.toString), player.name)
+  def create(player: Player): PlayerResource = PlayerResource(Some(player.id.value), player.name)
   def create(player: Seq[Player]): Seq[PlayerResource] = player.map(create)
 }
