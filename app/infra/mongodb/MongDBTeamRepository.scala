@@ -9,12 +9,6 @@ import reactivemongo.bson._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-case class TeamDocument(_id: UUID, playerIDs: Seq[UUID])
-
-object TeamDocument {
-  implicit val handler: BSONDocumentHandler[TeamDocument] = Macros.handler[TeamDocument]
-}
-
 class MongoDBTeamRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext) extends TeamRepository {
 
   def teamsCollection: Future[BSONCollection] = db.map(_.collection("teams"))
@@ -41,7 +35,7 @@ class MongoDBTeamRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext
   private def resolvePlayersBy(team: TeamDocument) = {
     for {
       players <- playerCollection.flatMap(_.find(BSONDocument("_id" -> BSONDocument("$in" -> team.playerIDs))).cursor[PlayerDocument]().collect[Seq](1000, Cursor.FailOnError[Seq[PlayerDocument]]()))
-    } yield TeamEntityTranslator.entitize(team, players)
+    } yield (team, players)
   }
 
   override def store(team: Team): Future[Team] = {
@@ -57,7 +51,9 @@ class MongoDBTeamRepository(db: Future[DefaultDB])(implicit ec: ExecutionContext
     TeamDocument(entity.id.value, entity.players.map(_.id.value))
 }
 
-object TeamEntityTranslator {
-  def entitize(document: TeamDocument, playerDocuments: Seq[PlayerDocument]): Team =
-    Team(TeamID(document._id), playerDocuments.map(PlayerEntityTranslator.entitize))
+case class TeamDocument(_id: UUID, playerIDs: Seq[UUID])
+object TeamDocument {
+  implicit val handler: BSONDocumentHandler[TeamDocument] = Macros.handler[TeamDocument]
+  implicit def toEntity(document: (TeamDocument, Seq[PlayerDocument])): Team = Team(TeamID(document._1._id), document._2)
+  implicit def fromEntity(team: Team): TeamDocument = TeamDocument(team.id.value, team.players.map(_.id.value))
 }

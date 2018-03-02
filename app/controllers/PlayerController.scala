@@ -12,7 +12,7 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 
   def get(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.resolveBy(PlayerID(id)).map { player =>
-      Ok(Json.toJson(PlayerResource.create(player)))
+      Ok(Json.toJson[PlayerResource](player))
     }
   }
 
@@ -24,21 +24,21 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 
   def getAll: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.resolve.map { players =>
-      Ok(Json.toJson(PlayerResource.create(players)))
+      Ok(Json.toJson[Seq[PlayerResource]](players))
     }
   }
 
   def post(): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.store(Player(PlayerID.generate, playerResource.name)).map { player =>
-      Created(Json.toJson(PlayerResource.create(player)))
+    repository.store(playerResource).map { player =>
+      Created(Json.toJson[PlayerResource](player))
     }
   }
 
   def put(id: UUID): Action[PlayerResource] = Action.async(parse.json[PlayerResource]) { implicit request: MessagesRequest[PlayerResource] =>
     val playerResource = request.body
-    repository.store(Player(PlayerID(id), playerResource.name)).map { player =>
-      Accepted(Json.toJson(PlayerResource.create(player)))
+    repository.store(playerResource).map { player =>
+      Accepted(Json.toJson[PlayerResource](player))
     }
   }
 }
@@ -46,6 +46,9 @@ class PlayerController(mcc: MessagesControllerComponents, repository: PlayerRepo
 case class PlayerResource(id: Option[UUID], name: String)
 object PlayerResource {
   implicit val format: OFormat[PlayerResource] = Json.format[PlayerResource]
-  def create(player: Player): PlayerResource = PlayerResource(Some(player.id.value), player.name)
-  def create(player: Seq[Player]): Seq[PlayerResource] = player.map(create)
+  implicit def toEntity(playerResource: PlayerResource): Player = {
+    val id = playerResource.id.map(PlayerID.apply).getOrElse(PlayerID.generate)
+    Player(id, playerResource.name)
+  }
+  implicit def fromEntity(player: Player): PlayerResource = PlayerResource(Some(player.id.value), player.name)
 }

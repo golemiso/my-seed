@@ -12,7 +12,7 @@ class TeamController(mcc: MessagesControllerComponents, repository: TeamReposito
 
   def get(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.resolveBy(TeamID(id)).map { team =>
-      Ok(Json.toJson(TeamResource.create(team)))
+      Ok(Json.toJson[TeamResource](team))
     }
   }
 
@@ -24,29 +24,31 @@ class TeamController(mcc: MessagesControllerComponents, repository: TeamReposito
 
   def getAll: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     repository.resolve.map { teams =>
-      Ok(Json.toJson(TeamResource.create(teams)))
+      Ok(Json.toJson[Seq[TeamResource]](teams))
     }
   }
 
   def post(): Action[TeamResource] = Action.async(parse.json[TeamResource]) { implicit request: MessagesRequest[TeamResource] =>
     val teamResource = request.body
-    repository.store(Team(TeamID.generate, Nil)).map { team =>
-      Created(Json.toJson(TeamResource.create(team)))
+    repository.store(teamResource).map { team =>
+      Created(Json.toJson[TeamResource](team))
     }
   }
 
   def put(id: UUID): Action[TeamResource] = Action.async(parse.json[TeamResource]) { implicit request: MessagesRequest[TeamResource] =>
     val teamResource = request.body
-    repository.store(Team(TeamID(id), Nil)).map { team =>
-      Accepted(Json.toJson(TeamResource.create(team)))
+    repository.store(teamResource).map { team =>
+      Accepted(Json.toJson[TeamResource](team))
     }
   }
 }
 
 case class TeamResource(id: Option[UUID], players: Seq[PlayerResource])
-
 object TeamResource {
   implicit val format: OFormat[TeamResource] = Json.format[TeamResource]
-  def create(team: Team): TeamResource = TeamResource(Some(team.id.value), PlayerResource.create(team.players))
-  def create(team: Seq[Team]): Seq[TeamResource] = team.map(create)
+  implicit def toEntity(teamResource: TeamResource): Team = {
+    val id = teamResource.id.map(TeamID.apply).getOrElse(TeamID.generate)
+    Team(id, teamResource.players)
+  }
+  implicit def fromEntity(team: Team): TeamResource = TeamResource(Some(team.id.value), team.players)
 }
