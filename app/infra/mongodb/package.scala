@@ -47,25 +47,5 @@ package object mongodb {
       builder.result()
     }
   }
-  //  implicit def implyConvertedaTraversable[A, B, C[X] <: Awaitable[X]](as: C[A])(implicit conversion: A => B, cbf: CanBuildFrom[C[A], B, C[B]]): C[B] = {
-  //    val builder = cbf(as)
-  //    builder.sizeHint(as)
-  //    builder ++= as.map(conversion)
-  //    builder.result()
-  //  }
-
   implicit def implyConvertedFuture[A, B](as: Future[A])(implicit conversion: A => B, executor: ExecutionContext): Future[B] = as.map { a => a: B }
-  //
-  //  implicit def implyConvertedFuture[A, B, C[X] <: Future[X]](as: C[A])(implicit conversion: A => B, cbf: CanBuildFrom[C[A], B, C[B]]): C[B] = {
-  //    val builder = cbf(as)
-  //    builder.sizeHint(as)
-  //    builder ++= as.map(conversion)
-  //    builder.result()
-  //  }
-  //
-  //  def sequence[A, M[X] <: TraversableOnce[X]](in: M[Future[A]])(implicit cbf: CanBuildFrom[M[Future[A]], A, M[A]], executor: ExecutionContext): Future[M[A]] = {
-  //    in.foldLeft(successful(cbf(in))) {
-  //      (fr, fa) => fr.zipWith(fa)(_ += _)
-  //    }.map(_.result())(InternalCallbackExecutor)
-  //  }
 }

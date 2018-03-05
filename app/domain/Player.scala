@@ -11,4 +11,9 @@ object PlayerID {
   def generate = PlayerID(UUID.randomUUID)
 }
 
-trait PlayerRepository extends Repository[Future, PlayerID, Player]
+trait PlayerRepository extends Repository[Future, PlayerID, Player] {
+  def resolvePlayerRecords: Future[Seq[PlayerRecord]]
+}
+
+case class PlayerRecord(player: Player, record: Record)
+case class Record(victory: Int, defeat: Int)

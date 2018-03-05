@@ -2,8 +2,7 @@ package infra.mongodb
 
 import java.util.UUID
 
-import domain.{ Player, PlayerID, PlayerRepository }
-import infra.mongodb
+import domain._
 import reactivemongo.api._
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson._
@@ -17,12 +16,18 @@ class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
   import reactivemongo.bson._
 
   override def resolve: Future[Seq[Player]] = {
-    playersCollection.flatMap(_.find(BSONDocument()).cursor[PlayerDocument]().collect[Seq](1000, Cursor.FailOnError[Seq[PlayerDocument]]()))
+    for {
+      collection <- playersCollection
+      player <- collection.find(BSONDocument()).cursor[PlayerDocument]().collect[Seq](1000, Cursor.FailOnError[Seq[PlayerDocument]]())
+    } yield player
   }
 
   override def resolveBy(id: PlayerID): Future[Player] = {
     val query = BSONDocument("_id" -> id.value)
-    playersCollection.flatMap(_.find(query).requireOne[PlayerDocument])
+    for {
+      collection <- playersCollection
+      player <- collection.find(query).requireOne[PlayerDocument]
+    } yield player
   }
 
   override def store(player: Player): Future[Player] = {
@@ -33,12 +38,42 @@ class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
     val selector = BSONDocument("_id" -> id.value)
     playersCollection.map(_.findAndRemove(selector))
   }
+
+  override def resolvePlayerRecords: Future[Seq[PlayerRecord]] = {
+    for {
+      collection <- playersCollection
+      player <- {
+        import collection.BatchCommands.AggregationFramework._
+        collection.aggregate(
+          Lookup(from = "battles", localField = "_id", foreignField = "victory.players._id", as = "victory"),
+          List(
+            Lookup(from = "battles", localField = "_id", foreignField = "defeat.players._id", as = "defeat"),
+            Project(BSONDocument(
+              "_id" -> 0,
+              "player._id" -> "$_id",
+              "player.name" -> "$name",
+              "record.victory" -> BSONDocument("$size" -> "$victory"),
+              "record.defeat" -> BSONDocument("$size" -> "$defeat"))))).map(_.head[PlayerRecordDocument].toSeq)
+      }
+    } yield player
+  }
 }
 
 case class PlayerDocument(_id: UUID, name: String)
 object PlayerDocument {
   implicit val handler: BSONDocumentHandler[PlayerDocument] = Macros.handler[PlayerDocument]
-  implicit def toEntity(playerDocument: PlayerDocument): Player = Player(PlayerID(playerDocument._id), playerDocument.name)
+  implicit def toEntity(player: PlayerDocument): Player = Player(PlayerID(player._id), player.name)
   implicit def fromEntity(player: Player): PlayerDocument = PlayerDocument(player.id.value, player.name)
-  implicit def implyConvertedFuture(as: Future[PlayerDocument])(implicit conversion: PlayerDocument => Player, executor: ExecutionContext): Future[Player] = as.map { a => a: Player }
+}
+
+case class RecordDocument(victory: Int, defeat: Int)
+object RecordDocument {
+  implicit val reader: BSONDocumentReader[RecordDocument] = Macros.reader[RecordDocument]
+  implicit def toEntity(record: RecordDocument): Record = Record(record.victory, record.defeat)
+}
+
+case class PlayerRecordDocument(player: PlayerDocument, record: RecordDocument)
+object PlayerRecordDocument {
+  implicit val reader: BSONDocumentReader[PlayerRecordDocument] = Macros.reader[PlayerRecordDocument]
+  implicit def toEntity(playerRecord: PlayerRecordDocument): PlayerRecord = PlayerRecord(playerRecord.player, playerRecord.record)
 }
