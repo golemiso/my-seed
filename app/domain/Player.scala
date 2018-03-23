@@ -13,7 +13,10 @@ object PlayerID {
 
 trait PlayerRepository extends Repository[Future, PlayerID, Player] {
   def resolvePlayerRecords: Future[Seq[PlayerRecord]]
+  def resolvePlayerBattles: Future[Seq[PlayerBattles]]
 }
 
 case class PlayerRecord(player: Player, record: Record)
 case class Record(victory: Int, defeat: Int)
+
+case class PlayerBattles(player: Player, battles: Seq[Battle])

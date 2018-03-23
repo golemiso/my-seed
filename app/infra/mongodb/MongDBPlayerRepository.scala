@@ -57,6 +57,16 @@ class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
       }
     } yield player
   }
+
+  override def resolvePlayerBattles: Future[Seq[PlayerBattles]] = {
+    for {
+      collection <- playersCollection
+      playerBattles <- {
+        import collection.BatchCommands.AggregationFramework._
+        collection.aggregatorContext[PlayerBattlesDocument](Lookup(from = "battles", localField = "_id", foreignField = "teams.players._id", as = "battles")).prepared.cursor.collect[Seq]()
+      }
+    } yield playerBattles
+  }
 }
 
 case class PlayerDocument(_id: UUID, name: String)
@@ -76,4 +86,10 @@ case class PlayerRecordDocument(player: PlayerDocument, record: RecordDocument)
 object PlayerRecordDocument {
   implicit val reader: BSONDocumentReader[PlayerRecordDocument] = Macros.reader[PlayerRecordDocument]
   implicit def toEntity(playerRecord: PlayerRecordDocument): PlayerRecord = PlayerRecord(playerRecord.player, playerRecord.record)
+}
+
+case class PlayerBattlesDocument(_id: UUID, name: String, battles: Seq[BattleDocument])
+object PlayerBattlesDocument {
+  implicit val reader: BSONDocumentReader[PlayerBattlesDocument] = Macros.reader[PlayerBattlesDocument]
+  implicit def toEntity(playerBattles: PlayerBattlesDocument): PlayerBattles = PlayerBattles(Player(PlayerID(playerBattles._id), playerBattles.name), playerBattles.battles)
 }

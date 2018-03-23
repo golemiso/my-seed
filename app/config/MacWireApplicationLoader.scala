@@ -2,7 +2,7 @@ package config
 
 import com.softwaremill.macwire._
 import com.typesafe.config.{ Config, ConfigFactory }
-import controllers.{ AssetsComponents, PlayerController, TeamController }
+import controllers.{ AssetsComponents, PlayerController, RankingController, TeamController }
 import domain.{ PlayerRepository, TeamRepository }
 import infra.mongodb.{ MongoDBPlayerRepository, MongoDBTeamRepository }
 import play.api.ApplicationLoader.Context
@@ -13,6 +13,7 @@ import play.api.routing.Router
 import play.api.{ Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator }
 import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import router.Routes
+import service.PlayerRecordService
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -39,6 +40,9 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
 
   lazy val teamController: TeamController = wire[TeamController]
   lazy val teamRepository: TeamRepository = wire[MongoDBTeamRepository]
+
+  lazy val rankingController: RankingController = wire[RankingController]
+  lazy val playerRecordService: PlayerRecordService = wire[PlayerRecordService]
 
   lazy val router: Router = {
     // add the prefix string in local scope for the Routes constructor

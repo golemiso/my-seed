@@ -19,3 +19,5 @@ GET     /teams                      controllers.TeamController.getAll
 POST    /teams                      controllers.TeamController.post()
 PUT     /teams/:id                  controllers.TeamController.put(id: java.util.UUID)
 DELETE  /teams/:id                  controllers.TeamController.delete(id: java.util.UUID)
+
+GET     /rankings                   controllers.RankingController.get(rankBy: String)

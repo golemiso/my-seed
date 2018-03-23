@@ -2,7 +2,7 @@ package infra.mongodb
 
 import java.util.UUID
 
-import domain.{ Battle, BattleID, BattleMode, BattleRepository }
+import domain._
 import reactivemongo.api._
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson._
@@ -38,10 +38,10 @@ class MongoDBBattleRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
   }
 }
 
-case class BattleDocument(_id: UUID, victory: TeamDocument, defeat: TeamDocument, mode: String)
+case class BattleDocument(_id: UUID, teams: Seq[TeamDocument], victory: UUID, defeat: UUID, mode: String)
 
 object BattleDocument {
   implicit val handler: BSONDocumentHandler[BattleDocument] = Macros.handler[BattleDocument]
-  implicit def toEntity(battle: BattleDocument): Battle = Battle(BattleID(battle._id), battle.victory, battle.defeat, BattleMode(battle.mode))
-  implicit def fromEntity(battle: Battle): BattleDocument = BattleDocument(battle.id.value, battle.victory, battle.defeat, battle.mode.value)
+  implicit def toEntity(battle: BattleDocument): Battle = Battle(BattleID(battle._id), battle.teams, TeamID(battle.victory), TeamID(battle.defeat), BattleMode(battle.mode))
+  implicit def fromEntity(battle: Battle): BattleDocument = BattleDocument(battle.id.value, battle.teams, battle.victory.value, battle.defeat.value, battle.mode.value)
 }
