@@ -11,6 +11,7 @@ import play.api.i18n._
 import play.api.mvc._
 import play.api.routing.Router
 import play.api.{ Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator }
+import play.filters.cors.{ CORSConfig, CORSFilter }
 import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import router.Routes
 import service.PlayerRecordService
@@ -26,6 +27,8 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
   with AssetsComponents
   with I18nComponents
   with play.filters.HttpFiltersComponents {
+
+  override lazy val httpFilters: Seq[EssentialFilter] = Seq(new CORSFilter(CORSConfig.fromConfiguration(configuration), httpErrorHandler))
 
   // set up logger
   LoggerConfigurator(context.environment.classLoader).foreach {
