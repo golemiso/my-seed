@@ -2,9 +2,9 @@ package config
 
 import com.softwaremill.macwire._
 import com.typesafe.config.{ Config, ConfigFactory }
-import controllers.{ AssetsComponents, PlayerController, RankingController, TeamController }
-import domain.{ PlayerRepository, TeamRepository }
-import infra.mongodb.{ MongoDBPlayerRepository, MongoDBTeamRepository }
+import controllers.{ AssetsComponents, BattleController, PlayerController, RankingController, TeamController }
+import domain.{ BattleRepository, PlayerRepository, TeamRepository }
+import infra.mongodb.{ MongoDBBattleRepository, MongoDBPlayerRepository, MongoDBTeamRepository }
 import play.api.ApplicationLoader.Context
 import play.api.http.FileMimeTypes
 import play.api.i18n._
@@ -43,6 +43,9 @@ class MacWireComponents(context: Context) extends BuiltInComponentsFromContext(c
 
   lazy val teamController: TeamController = wire[TeamController]
   lazy val teamRepository: TeamRepository = wire[MongoDBTeamRepository]
+
+  lazy val battleController: BattleController = wire[BattleController]
+  lazy val battleRepository: BattleRepository = wire[MongoDBBattleRepository]
 
   lazy val rankingController: RankingController = wire[RankingController]
   lazy val playerRecordService: PlayerRecordService = wire[PlayerRecordService]

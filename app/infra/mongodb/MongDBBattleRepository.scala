@@ -38,10 +38,17 @@ class MongoDBBattleRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
   }
 }
 
-case class BattleDocument(_id: UUID, teams: Seq[TeamDocument], victory: UUID, defeat: UUID, mode: String)
-
+case class BattleDocument(_id: UUID, teams: Seq[TeamDocument], result: Option[BattleResultDocument], mode: String)
 object BattleDocument {
   implicit val handler: BSONDocumentHandler[BattleDocument] = Macros.handler[BattleDocument]
-  implicit def toEntity(battle: BattleDocument): Battle = Battle(BattleID(battle._id), battle.teams, TeamID(battle.victory), TeamID(battle.defeat), BattleMode(battle.mode))
-  implicit def fromEntity(battle: Battle): BattleDocument = BattleDocument(battle.id.value, battle.teams, battle.victory.value, battle.defeat.value, battle.mode.value)
+  implicit def toEntity(battle: BattleDocument): Battle = Battle(BattleID(battle._id), battle.teams, battle.result, BattleMode(battle.mode))
+  implicit def fromEntity(battle: Battle): BattleDocument = BattleDocument(battle.id.value, battle.teams, battle.result, battle.mode.value)
+}
+
+case class BattleResultDocument(victory: UUID, defeat: UUID)
+object BattleResultDocument {
+  implicit val handler: BSONDocumentHandler[BattleResultDocument] = Macros.handler[BattleResultDocument]
+  implicit def toEntity(result: Option[BattleResultDocument]): Option[BattleResult] = result.map(b => BattleResult(TeamID(b.victory), TeamID(b.defeat)))
+  implicit def fromEntity(result: Option[BattleResult]): Option[BattleResultDocument] = result.map(b => BattleResultDocument(b.victory.value, b.defeat.value))
+
 }

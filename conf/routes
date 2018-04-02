@@ -20,4 +20,10 @@ POST    /teams                      controllers.TeamController.post()
 PUT     /teams/:id                  controllers.TeamController.put(id: java.util.UUID)
 DELETE  /teams/:id                  controllers.TeamController.delete(id: java.util.UUID)
 
+GET     /battles/:id                controllers.BattleController.get(id: java.util.UUID)
+GET     /battles                    controllers.BattleController.getAll
+POST    /battles                    controllers.BattleController.post()
+PUT     /battles/:id                controllers.BattleController.put(id: java.util.UUID)
+DELETE  /battles/:id                controllers.BattleController.delete(id: java.util.UUID)
+
 GET     /rankings                   controllers.RankingController.get(rankBy: String)
