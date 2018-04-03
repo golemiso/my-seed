@@ -1,9 +1,9 @@
 name := """splatoon-tournament-manager"""
 organization := "com.golemiso"
 
-version := "1.0-SNAPSHOT"
+version := "0.1.0"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, DockerPlugin)
 
 scalaVersion := "2.12.4"
 
