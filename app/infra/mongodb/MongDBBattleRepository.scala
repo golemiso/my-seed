@@ -29,7 +29,11 @@ class MongoDBBattleRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
   }
 
   override def store(battle: Battle): Future[Battle] = {
-    battlesCollection.flatMap(_.insert[BattleDocument](battle).map(_ => battle))
+    val selector = BSONDocument("_id" -> battle.id.value)
+    for {
+      collection <- battlesCollection
+      _ <- collection.update[BSONDocument, BattleDocument](selector, battle, upsert = true)
+    } yield battle
   }
 
   override def deleteBy(id: BattleID): Future[Unit] = {

@@ -31,7 +31,11 @@ class MongoDBPlayerRepository(db: Future[DefaultDB])(implicit ec: ExecutionConte
   }
 
   override def store(player: Player): Future[Player] = {
-    playersCollection.flatMap(_.insert[PlayerDocument](player).map(_ => player))
+    val selector = BSONDocument("_id" -> player.id.value)
+    for {
+      collection <- playersCollection
+      _ <- collection.update[BSONDocument, PlayerDocument](selector, player, upsert = true)
+    } yield player
   }
 
   override def deleteBy(id: PlayerID): Future[Unit] = {

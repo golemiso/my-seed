@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.UUID
+
 import org.scalatestplus.play.BaseOneAppPerTest
 import org.scalatest.FunSpec
 import play.api.test.FakeRequest
@@ -18,7 +20,7 @@ class PlayerControllerSpec extends FunSpec with BaseOneAppPerTest with MacWireAp
       }
       describe("id specified") {
         it("201") {
-          val Some(result) = route(app, FakeRequest(POST, "/players").withBody(Json.toJson(PlayerResource(Some("00000000-0000-0000-0000-000000000000"), "Test User"))))
+          val Some(result) = route(app, FakeRequest(POST, "/players").withBody(Json.toJson(PlayerResource(Some(UUID.fromString("00000000-0000-0000-0000-000000000000")), "Test User"))))
           assert(status(result) === CREATED)
         }
       }
