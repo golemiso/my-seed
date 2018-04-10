@@ -1,23 +1,33 @@
-name := """splatoon-tournament-manager"""
-organization := "com.golemiso"
-
-version := "0.1.0"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala, DockerPlugin)
-
-scalaVersion := "2.12.4"
-
-libraryDependencies ++= Seq(
-  guice,
-  "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided",
-  "org.reactivemongo" %% "reactivemongo" % "0.13.0",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+val baseSettings = Seq(
+  organization := "com.golemiso",
+  version := "0.1.0",
+  scalaVersion := "2.12.4",
+  javaOptions in Test += "-Dconfig.file=test/resources/test.conf"
 )
 
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.golemiso.controllers._"
+lazy val `domain` = (project in file("domain"))
+  .settings(baseSettings)
+  .settings(
+    name := "ama-domain"
+  )
 
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.golemiso.binders._"
+lazy val `play` = (project in file("play")).enablePlugins(PlayScala)
+  .settings(baseSettings)
+  .settings(
+    name := "ama-play",
+    libraryDependencies ++= Seq(
+      guice,
+      "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided",
+      "org.reactivemongo" %% "reactivemongo" % "0.13.0",
+      "org.reactivemongo" %% "reactivemongo-akkastream" % "0.13.0",
+      "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+    )
+  )
+  .dependsOn(`domain`)
 
-javaOptions in Test += "-Dconfig.file=test/resources/test.conf"
+lazy val root = (project in file(".")).enablePlugins(DockerPlugin)
+  .settings(baseSettings)
+  .settings(
+    name := "ama"
+  )
+  .aggregate(`play`)
